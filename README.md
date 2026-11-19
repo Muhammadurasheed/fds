@@ -9,23 +9,30 @@ An engineering calculation and exploratory model interface based on the model an
 ## 1. Project Architecture
 
 This monorepo contains:
-- `apps/web/`: Next.js App Router (React, TypeScript, Tailwind CSS, Recharts) frontend.
-- `services/api/`: FastAPI backend wrapping the scientific Python calculation engine (NumPy, SciPy, Pandas).
-- `services/api/app/scientific/`: Preserved Python scientific calculation core and digitised datasets.
-- `archive/legacy-streamlit/`: Preserved original Streamlit prototype for parity verification.
+
+| Directory | Purpose |
+|---|---|
+| `frontend/` | Next.js App Router (React, TypeScript, Tailwind CSS, Recharts) |
+| `backend/` | FastAPI service wrapping the scientific Python engine (NumPy, SciPy, Pandas) |
+| `backend/app/scientific/` | Preserved Python calculation core and digitised experimental datasets |
+| `archive/legacy-streamlit/` | Preserved original Streamlit prototype for parity verification |
 
 ```text
-├── apps/
-│   └── web/                   # Next.js web application
-├── services/
-│   └── api/                   # FastAPI backend service
-│       ├── app/
-│       │   ├── api/           # API routes and Pydantic schemas
-│       │   ├── core/          # Configuration, structured errors, logging
-│       │   ├── scientific/    # Preserved formation damage computational engine
-│       │   └── main.py        # FastAPI entrypoint
-│       ├── tests/             # Pytest API and scientific regression suite
-│       └── requirements.txt   # Python dependencies
+FDS/
+├── frontend/                  # Next.js web application
+│   ├── app/                   # App Router pages and layouts
+│   └── package.json
+├── backend/                   # FastAPI backend service
+│   ├── app/
+│   │   ├── api/               # API routes and Pydantic schemas
+│   │   ├── core/              # Configuration, structured errors, logging
+│   │   ├── scientific/        # Preserved formation damage computational engine
+│   │   └── main.py            # FastAPI application
+│   ├── tests/                 # Pytest API and scientific regression suite
+│   ├── environment.yml        # Conda environment definition
+│   ├── requirements.txt       # pip requirements (used in CI)
+│   ├── run.py                 # Development entry point
+│   └── pyproject.toml         # pytest configuration
 ├── archive/
 │   └── legacy-streamlit/      # Legacy Streamlit prototype
 ├── .github/workflows/         # GitHub Actions CI pipeline
@@ -38,73 +45,118 @@ This monorepo contains:
 ## 2. Quickstart & Local Setup
 
 ### Prerequisites
-- **Python**: 3.11+ (Python 3.12 or 3.13 recommended)
-- **Node.js**: 20+ (v24 supported)
-- **Git**
 
-### Backend Setup (FastAPI)
+| Tool | Required Version |
+|---|---|
+| [Miniconda / Anaconda](https://docs.conda.io/en/latest/miniconda.html) | Any recent version |
+| [Node.js](https://nodejs.org/) | 20+ (v24 supported) |
+| [Git](https://git-scm.com/) | Any recent version |
 
-1. Navigate to the API service directory:
-   ```bash
-   cd services/api
-   ```
-
-2. Create and activate a virtual environment:
-   - **Windows (PowerShell)**:
-     ```powershell
-     python -m venv .venv
-     .\.venv\Scripts\Activate.ps1
-     ```
-   - **Linux / macOS**:
-     ```bash
-     python3 -m venv .venv
-     source .venv/bin/activate
-     ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Run the test suite:
-   ```bash
-   pytest
-   ```
-
-5. Start the API server:
-   ```bash
-   uvicorn app.main:app --reload --port 8000
-   ```
-   - API Health Endpoint: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
-   - Interactive Swagger Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-
-### Frontend Setup (Next.js)
-
-1. Navigate to the web application directory:
-   ```bash
-   cd apps/web
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Run typecheck and build:
-   ```bash
-   npm run typecheck
-   npm run build
-   ```
-
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   - Web Application: [http://localhost:3000](http://localhost:3000)
+> **Note:** The backend uses a Conda environment (`fds-api`) for Python dependency management. Node.js is only required for the frontend.
 
 ---
 
-## 3. Scientific Model & Domain
+### Backend Setup (FastAPI + Conda)
+
+Open a **PowerShell** terminal.
+
+#### One-time environment setup
+
+```powershell
+# 1. Navigate to the backend directory
+cd C:\Users\HP\Documents\FDS\backend
+
+# 2. Create the Conda environment from the definition file
+conda env create -f environment.yml
+
+# 3. Verify the environment was created
+conda env list
+```
+
+#### Start the backend server
+
+```powershell
+# Navigate to the backend directory
+cd C:\Users\HP\Documents\FDS\backend
+
+# Activate the Conda environment
+conda activate fds-api
+
+# Start the API server
+python run.py
+```
+
+The server will start with hot-reload enabled.
+
+| Endpoint | URL |
+|---|---|
+| Health check | http://localhost:8000/api/v1/health |
+| Interactive Swagger docs | http://localhost:8000/docs |
+| ReDoc documentation | http://localhost:8000/redoc |
+
+#### Run the backend test suite
+
+```powershell
+cd C:\Users\HP\Documents\FDS\backend
+conda activate fds-api
+pytest -v
+```
+
+Expected: **8 passed**.
+
+---
+
+### Frontend Setup (Next.js)
+
+Open a **second PowerShell** terminal, leaving the backend running in the first.
+
+```powershell
+# 1. Navigate to the frontend directory
+cd C:\Users\HP\Documents\FDS\frontend
+
+# 2. Install Node.js dependencies (first time only)
+npm install
+
+# 3. Start the development server
+npm run dev
+```
+
+The application will be available at http://localhost:3000.
+
+#### Frontend checks
+
+```powershell
+cd C:\Users\HP\Documents\FDS\frontend
+
+# TypeScript type check
+npm run typecheck
+
+# Production build
+npm run build
+```
+
+---
+
+## 3. Running Both Services
+
+Run the backend and frontend in **two separate PowerShell terminals**:
+
+**Terminal 1 — Backend:**
+```powershell
+cd C:\Users\HP\Documents\FDS\backend
+conda activate fds-api
+python run.py
+```
+
+**Terminal 2 — Frontend:**
+```powershell
+cd C:\Users\HP\Documents\FDS\frontend
+npm run dev
+```
+
+---
+
+## 4. Scientific Model & Domain
 
 - **Cake Thickness**: $h(t) = \sqrt{B_1 t - B_2 e^{-B_3 t}}$ (cm)
 - **Cumulative Filtrate Volume**: $Q(t) = B_4 e^{-B_3 t} - B_5 t$ (cc)
@@ -116,8 +168,37 @@ This monorepo contains:
 
 ---
 
-## 4. Verification & Testing
+## 5. Verification & Testing
 
-- **Backend Tests**: Run `pytest` inside `services/api`.
-- **Frontend Typecheck**: Run `npm run typecheck` inside `apps/web`.
-- **Legacy Parity Check**: Run `python -c "import sys; sys.path.insert(0, 'archive/legacy-streamlit'); import formation_damage_model as fm; print(fm.predict(96, 60, fm.calibration('experimental').P_ref, 'experimental'))"` to verify bit-level parity against the original Streamlit code.
+| Check | Command | Directory |
+|---|---|---|
+| Backend tests | `pytest -v` | `backend/` |
+| Frontend typecheck | `npm run typecheck` | `frontend/` |
+| Frontend production build | `npm run build` | `frontend/` |
+| Legacy parity check | See below | `FDS/` root |
+
+**Legacy numerical parity check:**
+
+```powershell
+cd C:\Users\HP\Documents\FDS
+conda activate fds-api
+python -c "import sys; sys.path.insert(0, 'archive/legacy-streamlit'); import formation_damage_model as fm; print(fm.predict(96, 60, fm.calibration('experimental').P_ref, 'experimental'))"
+```
+
+Expected output: `(0.3406523491981806, 40.05912203311685)`
+
+---
+
+## 6. Environment Variables
+
+Copy `.env.example` to configure local overrides:
+
+```powershell
+# Backend (optional — defaults are sufficient for local development)
+copy .env.example backend\.env
+
+# Frontend
+copy .env.example frontend\.env.local
+```
+
+The default configuration works out of the box for local development without any environment variable changes.
