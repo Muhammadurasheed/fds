@@ -55,7 +55,7 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
             },
         }
     }
-    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=payload)
+    return JSONResponse(status_code=422, content=payload)
 
 async def generic_error_handler(request: Request, exc: Exception) -> JSONResponse:
     # Do not leak internal stack traces in production

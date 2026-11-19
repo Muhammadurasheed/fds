@@ -9,7 +9,13 @@ from app.core.errors import (
     generic_error_handler,
 )
 from app.core.logging import setup_logging
-from app.api.routes import health
+from app.api.routes import (
+    health_router,
+    model_router,
+    predictions_router,
+    charts_router,
+    datasets_router,
+)
 
 setup_logging()
 
@@ -37,7 +43,11 @@ app.add_exception_handler(RequestValidationError, validation_error_handler)
 app.add_exception_handler(Exception, generic_error_handler)
 
 # Include routers
-app.include_router(health.router, prefix=settings.api_v1_prefix)
+app.include_router(health_router, prefix=settings.api_v1_prefix)
+app.include_router(model_router, prefix=settings.api_v1_prefix)
+app.include_router(predictions_router, prefix=settings.api_v1_prefix)
+app.include_router(charts_router, prefix=settings.api_v1_prefix)
+app.include_router(datasets_router, prefix=settings.api_v1_prefix)
 
 # Root convenience redirect or ping
 @app.get("/", tags=["Root"])
@@ -46,4 +56,6 @@ def root_ping():
         "message": "Formation Damage Simulator API",
         "docs": "/docs",
         "health": f"{settings.api_v1_prefix}/health",
+        "metadata": f"{settings.api_v1_prefix}/model/metadata",
+        "version": settings.service_version,
     }
