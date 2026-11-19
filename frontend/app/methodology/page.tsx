@@ -53,7 +53,8 @@ export default function MethodologyPage() {
               <p className="text-xs text-foreground/70">
                 Where <code className="font-mono text-foreground font-semibold">h</code> is mud-cake
                 thickness in centimeters [cm], and <code className="font-mono text-foreground font-semibold">t</code> is
-                exposure time in hours [hr].
+                exposure time in hours [hr]. Inside the radical, values are clipped to &ge; 0 to handle times
+                prior to initial cake deposition (onset time &approx; 35 hr).
               </p>
             </div>
 
@@ -168,7 +169,7 @@ export default function MethodologyPage() {
               </div>
               <p className="text-xs text-foreground/70">
                 Direct non-linear curve fit to physical core-flood observations. Minimises mean squared
-                error relative to measured laboratory data points.
+                error relative to measured laboratory data points. Implied reference pressure: ~2,650 psi.
               </p>
             </div>
 
@@ -179,8 +180,64 @@ export default function MethodologyPage() {
               </div>
               <p className="text-xs text-foreground/70">
                 Fit to the published smooth model curves presented in the 2013 paper, enabling exact
-                reproduction of the authors&apos; visual figures.
+                reproduction of the authors&apos; visual figures. Implied reference pressure: ~2,650 psi.
               </p>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <span className="text-xs font-bold text-foreground block mb-2">
+              Fitted Model Constants B₁–B₅ Summary Table
+            </span>
+            <div className="overflow-x-auto border border-surface-border rounded-md">
+              <table className="w-full text-xs text-left border-collapse">
+                <thead className="bg-surface-muted text-foreground/70 uppercase text-[10px] font-mono border-b border-surface-border">
+                  <tr>
+                    <th className="px-4 py-2">Constant</th>
+                    <th className="px-4 py-2">Physical Dimension</th>
+                    <th className="px-4 py-2">Role in Formulation</th>
+                    <th className="px-4 py-2 font-mono">Experimental Fit</th>
+                    <th className="px-4 py-2 font-mono">Model Curve Fit</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-surface-border font-mono text-foreground/80">
+                  <tr>
+                    <td className="px-4 py-2 font-bold text-foreground">B₁</td>
+                    <td className="px-4 py-2">cm² / hr</td>
+                    <td className="px-4 py-2 font-sans text-foreground/70">Linear cake thickness growth rate</td>
+                    <td className="px-4 py-2 text-primary font-bold">0.002522</td>
+                    <td className="px-4 py-2">0.003685</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 font-bold text-foreground">B₂</td>
+                    <td className="px-4 py-2">cm²</td>
+                    <td className="px-4 py-2 font-sans text-foreground/70">Exponential delay / offset in cake growth</td>
+                    <td className="px-4 py-2 text-primary font-bold">0.071670</td>
+                    <td className="px-4 py-2">0.100913</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 font-bold text-foreground">B₃</td>
+                    <td className="px-4 py-2">1 / hr (hr⁻¹)</td>
+                    <td className="px-4 py-2 font-sans text-foreground/70">Shared kinetic rate coefficient (in both h &amp; Q)</td>
+                    <td className="px-4 py-2 text-primary font-bold">-0.005879</td>
+                    <td className="px-4 py-2">-0.009034</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 font-bold text-foreground">B₄</td>
+                    <td className="px-4 py-2">cc</td>
+                    <td className="px-4 py-2 font-sans text-foreground/70">Spurt / early-stage filtrate amplitude</td>
+                    <td className="px-4 py-2 text-primary font-bold">8.637927</td>
+                    <td className="px-4 py-2">7.231899</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 font-bold text-foreground">B₅</td>
+                    <td className="px-4 py-2">cc / hr</td>
+                    <td className="px-4 py-2 font-sans text-foreground/70">Steady-state long-term filtration loss rate</td>
+                    <td className="px-4 py-2 text-primary font-bold">-0.259065</td>
+                    <td className="px-4 py-2">-0.209739</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </CardContent>
