@@ -252,6 +252,9 @@ export class ApiClientError extends Error {
 export function getApiBaseUrl(): string {
   const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!envUrl) {
+    if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+      return "https://fds-api.onrender.com/api/v1";
+    }
     return "http://127.0.0.1:8000/api/v1";
   }
   const clean = envUrl.trim().replace(/\/+$/, "");
