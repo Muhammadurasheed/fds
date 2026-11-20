@@ -1,0 +1,211 @@
+/**
+ * Central API Client for Formation Damage Simulator.
+ * Provides typed access to FastAPI scientific endpoints.
+ */
+
+export interface RangeMetadata {
+  min: number;
+  max: number;
+  unit: string;
+  description: string;
+}
+
+export interface DomainMetadata {
+  time_hr: RangeMetadata;
+  deviation_angle_deg: RangeMetadata;
+  mud_pressure_psi: RangeMetadata;
+}
+
+export interface CalibrationMetadata {
+  id: "experimental" | "model";
+  name: string;
+  description: string;
+  p_ref_psi: number;
+  b_parameters: number[];
+  parameter_names: string[];
+}
+
+export interface DrillingPathMetadata {
+  formula: string;
+  description: string;
+  separability_threshold_deg: number;
+}
+
+export interface GoverningEquationsMetadata {
+  cake_thickness_cm: string;
+  filtrate_volume_cc: string;
+  shared_parameter: string;
+  note: string;
+}
+
+export interface ModelMetadataResponse {
+  name: string;
+  service_version: string;
+  model_version: string;
+  citation: string;
+  domain: DomainMetadata;
+  calibrations: CalibrationMetadata[];
+  drilling_path: DrillingPathMetadata;
+  governing_equations: GoverningEquationsMetadata;
+  limitations: string[];
+}
+
+export interface PredictionRequest {
+  time_hr: number;
+  deviation_angle_deg: number;
+  mud_pressure_psi: number;
+  calibration: "experimental" | "model";
+  include_uncertainty?: boolean;
+  uncertainty_level?: number;
+}
+
+export interface PredictionInputs {
+  time_hr: number;
+  deviation_angle_deg: number;
+  mud_pressure_psi: number;
+}
+
+export interface PredictionResults {
+  cake_thickness_cm: number;
+  filtrate_volume_cc: number;
+}
+
+export interface PercentileInterval {
+  lower: number;
+  median: number;
+  upper: number;
+}
+
+export interface UncertaintyData {
+  level: number;
+  cake_thickness_cm: PercentileInterval;
+  filtrate_volume_cc: PercentileInterval;
+  ensemble_size: number;
+  notice: string;
+}
+
+export interface DomainStatus {
+  within_calibrated_ranges: boolean;
+  on_source_path: boolean;
+  source_path_angle_deg: number;
+  warnings: string[];
+}
+
+export interface PredictionResponse {
+  inputs: PredictionInputs;
+  calibration: string;
+  model_version: string;
+  results: PredictionResults;
+  uncertainty?: UncertaintyData | null;
+  domain: DomainStatus;
+}
+
+export interface HealthResponse {
+  status: string;
+  service: string;
+  model_loaded: boolean;
+  model_version: string;
+}
+
+export interface ApiErrorDetail {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+export class ApiClientError extends Error {
+  code: string;
+  status: number;
+  details?: Record<string, unknown>;
+
+  constructor(message: string, status: number = 500, code: string = "API_ERROR", details?: Record<string, unknown>) {
+    super(message);
+    this.name = "ApiClientError";
+    this.status = status;
+    this.code = code;
+    this.details = details;
+  }
+}
+
+/**
+ * Resolves the API base URL prefix with normalization.
+ * Strips any trailing slashes and ensures '/api/v1' path is present.
+ */
+export function getApiBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!envUrl) {
+    return "http://127.0.0.1:8000/api/v1";
+  }
+  const clean = envUrl.trim().replace(/\/+$/, "");
+  if (clean.endsWith("/api/v1")) {
+    return clean;
+  }
+  return `${clean}/api/v1`;
+}
+
+async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const baseUrl = getApiBaseUrl();
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const url = `${baseUrl}${cleanEndpoint}`;
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+
+    const isJson = response.headers.get("content-type")?.includes("application/json");
+    const rawData = isJson ? await response.json() : await response.text();
+
+    if (!response.ok) {
+      if (typeof rawData === "object" && rawData !== null && "error" in rawData) {
+        const errObj = (rawData as { error: ApiErrorDetail }).error;
+        throw new ApiClientError(
+          errObj.message || "An error occurred while communicating with the backend.",
+          response.status,
+          errObj.code || "API_ERROR",
+          errObj.details
+        );
+      }
+      const fallbackMsg = typeof rawData === "string" ? rawData : response.statusText;
+      throw new ApiClientError(
+        fallbackMsg || `Request failed with status ${response.status}`,
+        response.status,
+        "HTTP_ERROR"
+      );
+    }
+
+    return rawData as T;
+  } catch (err: unknown) {
+    if (err instanceof ApiClientError) {
+      throw err;
+    }
+    const message = err instanceof Error ? err.message : "Failed to connect to the scientific calculation engine.";
+    throw new ApiClientError(
+      `Network or server connection failed: ${message}`,
+      0,
+      "CONNECTION_ERROR"
+    );
+  }
+}
+
+export const api = {
+  checkHealth(): Promise<HealthResponse> {
+    return request<HealthResponse>("/health", { method: "GET", cache: "no-store" });
+  },
+
+  getModelMetadata(): Promise<ModelMetadataResponse> {
+    return request<ModelMetadataResponse>("/model/metadata", { method: "GET" });
+  },
+
+  computePrediction(payload: PredictionRequest): Promise<PredictionResponse> {
+    return request<PredictionResponse>("/predictions", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+};
