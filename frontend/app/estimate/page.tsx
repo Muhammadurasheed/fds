@@ -14,6 +14,8 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { UncertaintyRangeBar } from "@/components/estimate/uncertainty-range-bar";
 import { DomainWarningPanel } from "@/components/estimate/domain-warning-panel";
 import { PredictionSummaryCard } from "@/components/estimate/prediction-summary-card";
+import { AIInterpretationCard } from "@/components/estimate/ai-interpretation-card";
+import { CalculationTraceModal } from "@/components/estimate/calculation-trace-modal";
 import {
   api,
   ModelMetadataResponse,
@@ -564,6 +566,17 @@ export default function EstimatePage() {
                 />
               )}
 
+              {/* Step-by-Step Mathematical Calculation Trace */}
+              <CalculationTraceModal
+                trace={predictionResponse.calculation_trace}
+                timeHr={predictionResponse.inputs.time_hr}
+                angleDeg={predictionResponse.inputs.deviation_angle_deg}
+                pressurePsi={predictionResponse.inputs.mud_pressure_psi}
+                calibration={predictionResponse.calibration}
+                cakeThicknessCm={predictionResponse.results.cake_thickness_cm}
+                filtrateVolumeCc={predictionResponse.results.filtrate_volume_cc}
+              />
+
               {/* Primary Results Grid (Two Cards) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* 1. Cake Thickness (h) */}
@@ -634,6 +647,18 @@ export default function EstimatePage() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Gemini AI Operational Engineering Assessment */}
+              <AIInterpretationCard
+                timeHr={predictionResponse.inputs.time_hr}
+                angleDeg={predictionResponse.inputs.deviation_angle_deg}
+                pressurePsi={predictionResponse.inputs.mud_pressure_psi}
+                calibration={predictionResponse.calibration}
+                cakeThicknessCm={predictionResponse.results.cake_thickness_cm}
+                filtrateVolumeCc={predictionResponse.results.filtrate_volume_cc}
+                withinDomain={predictionResponse.domain.within_calibrated_ranges}
+                onSourcePath={predictionResponse.domain.on_source_path}
+              />
 
               {/* Bootstrap Uncertainty Visualisation (when enabled) */}
               {predictionResponse.uncertainty && (

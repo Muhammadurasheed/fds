@@ -174,6 +174,26 @@ export interface SweepResponse {
   metadata: SweepMetadata;
 }
 
+export interface CalculationTrace {
+  b_parameters: number[];
+  parameter_names: string[];
+  p_ref_psi: number;
+  theta_path_deg: number;
+  b1_t: number;
+  b2_exp_term: number;
+  radical_diff: number;
+  onset_clipped: boolean;
+  h_time_cm: number;
+  m_theta_h: number;
+  m_p: number;
+  h_final_cm: number;
+  b4_exp_term: number;
+  b5_t_term: number;
+  q_time_cc: number;
+  m_theta_q: number;
+  q_final_cc: number;
+}
+
 export interface PredictionResponse {
   inputs: PredictionInputs;
   calibration: string;
@@ -181,6 +201,21 @@ export interface PredictionResponse {
   results: PredictionResults;
   uncertainty?: UncertaintyData | null;
   domain: DomainStatus;
+  calculation_trace?: CalculationTrace | null;
+}
+
+export interface CalibrationValidation {
+  RMSE: number;
+  R2: number;
+  MAE: number;
+  MAPE: number;
+  n: number;
+}
+
+export interface ValidationResponse {
+  experimental: CalibrationValidation;
+  model: CalibrationValidation;
+  notice: string;
 }
 
 export interface HealthResponse {
@@ -283,6 +318,10 @@ export const api = {
 
   getModelMetadata(): Promise<ModelMetadataResponse> {
     return request<ModelMetadataResponse>("/model/metadata", { method: "GET" });
+  },
+
+  getModelValidation(): Promise<ValidationResponse> {
+    return request<ValidationResponse>("/model/validation", { method: "GET" });
   },
 
   computePrediction(payload: PredictionRequest): Promise<PredictionResponse> {
