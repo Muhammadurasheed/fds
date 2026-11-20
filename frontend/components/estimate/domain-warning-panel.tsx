@@ -22,7 +22,7 @@ export function DomainWarningPanel({ domain, timeHr, angleDeg }: DomainWarningPa
         {within_calibrated_ranges ? (
           <Badge variant="valid" className="gap-1 py-1 px-2.5">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            Within Calibrated Experimental Domain
+            Within Calibrated Parameter Ranges
           </Badge>
         ) : (
           <Badge variant="warning" className="gap-1 py-1 px-2.5">

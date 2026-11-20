@@ -51,20 +51,20 @@ export function UncertaintyRangeBar({
       <div className="flex items-center justify-between text-xs">
         <span className="font-semibold text-foreground">{label}</span>
         <span className="text-[11px] font-mono text-foreground/60">
-          {confidenceLevel}% Bootstrap CI
+          {confidenceLevel}% Bootstrap Percentile Interval
         </span>
       </div>
 
       {/* Visual Bar Container */}
       <div className="relative h-7 w-full bg-slate-100 rounded border border-surface-border my-2 overflow-hidden flex items-center">
-        {/* Shaded Confidence Interval Range */}
+        {/* Shaded Bootstrap Percentile Interval Range */}
         <div
           className="absolute h-4 bg-sky-200/80 rounded"
           style={{
             left: `${lowerPct}%`,
             width: `${bandWidth}%`,
           }}
-          title={`Confidence Range: ${fmt(lower)} to ${fmt(upper)} ${unit}`}
+          title={`Bootstrap Percentile Range: ${fmt(lower)} to ${fmt(upper)} ${unit}`}
         />
 
         {/* Median Marker (Dashed vertical line) */}

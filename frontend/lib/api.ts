@@ -91,6 +91,51 @@ export interface DomainStatus {
   warnings: string[];
 }
 
+export interface FixedInputs {
+  time_hr?: number;
+  deviation_angle_deg?: number;
+  mud_pressure_psi?: number;
+}
+
+export interface SweepRequest {
+  sweep_variable: "time" | "deviation_angle" | "mud_pressure";
+  calibration?: "experimental" | "model";
+  fixed_inputs: FixedInputs;
+  points?: number;
+  include_source_observations?: boolean;
+}
+
+export interface SweepResults {
+  cake_thickness_cm: number[];
+  filtrate_volume_cc: number[];
+}
+
+export interface SourceObservations {
+  has_matching_series: boolean;
+  series_label?: string | null;
+  x_values?: number[] | null;
+  cake_thickness_cm?: number[] | null;
+  filtrate_volume_cc?: number[] | null;
+  note?: string | null;
+}
+
+export interface SweepMetadata {
+  calibration: string;
+  sweep_variable: string;
+  points: number;
+  on_source_path: boolean;
+  warnings: string[];
+}
+
+export interface SweepResponse {
+  sweep_variable: string;
+  x_values: number[];
+  x_unit: string;
+  results: SweepResults;
+  source_observations: SourceObservations;
+  metadata: SweepMetadata;
+}
+
 export interface PredictionResponse {
   inputs: PredictionInputs;
   calibration: string;
@@ -204,6 +249,13 @@ export const api = {
 
   computePrediction(payload: PredictionRequest): Promise<PredictionResponse> {
     return request<PredictionResponse>("/predictions", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  computeSweep(payload: SweepRequest): Promise<SweepResponse> {
+    return request<SweepResponse>("/charts/sweep", {
       method: "POST",
       body: JSON.stringify(payload),
     });

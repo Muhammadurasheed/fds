@@ -243,7 +243,7 @@ export default function EstimatePage() {
       {/* Page Header with Engine Status Badge */}
       <PageHeader
         title="Formation Damage Estimator"
-        description="Compute mud-cake thickness (cm) and cumulative filtrate invasion volume (cc) under steady-state drilling filtration with empirical bootstrap parameter uncertainty."
+        description="Predict mud-cake thickness (cm) and cumulative filtrate invasion volume (cc) during drilling using empirical parameter uncertainty estimates."
         badge={
           <div className="flex items-center gap-2">
             <Badge variant="outline">Calculation Engine</Badge>
@@ -431,9 +431,9 @@ export default function EstimatePage() {
                         value={uncertaintyLevel}
                         onChange={(e) => setUncertaintyLevel(e.target.value)}
                         options={[
-                          { value: "90", label: "90% Confidence Interval (p5 – p95)" },
-                          { value: "95", label: "95% Confidence Interval (p2.5 – p97.5) [Recommended]" },
-                          { value: "99", label: "99% Confidence Interval (p0.5 – p99.5)" },
+                          { value: "90", label: "90% Bootstrap Percentile Interval (p5 – p95)" },
+                          { value: "95", label: "95% Bootstrap Percentile Interval (p2.5 – p97.5) [Recommended]" },
+                          { value: "99", label: "99% Bootstrap Percentile Interval (p0.5 – p99.5)" },
                         ]}
                         error={validationErrors.uncertainty}
                         helperText="Percentile boundaries derived from empirical parameter draws."
