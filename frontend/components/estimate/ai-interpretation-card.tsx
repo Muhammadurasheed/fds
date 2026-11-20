@@ -128,17 +128,19 @@ export function AIInterpretationCard({
 
   return (
     <Card className={`border shadow-sm transition-colors duration-200 ${flagTheme.border} ${flagTheme.bg}`}>
-      <CardHeader className="pb-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-md bg-primary/10 text-primary">
+      <CardHeader className="pb-3 border-b border-surface-border/40">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-start gap-2.5">
+            <div className="p-1.5 rounded-md bg-primary/10 text-primary mt-0.5 shrink-0">
               <Sparkles className="w-4 h-4 text-primary" />
             </div>
-            <div>
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                Gemini AI Formation Damage Assessment
+            <div className="space-y-0.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <CardTitle className="text-sm font-semibold text-foreground">
+                  Gemini AI Formation Damage Assessment
+                </CardTitle>
                 {data?.source === "gemini" ? (
-                  <Badge variant="outline" className="text-[10px] py-0 font-mono text-primary">
+                  <Badge variant="outline" className="text-[10px] py-0 font-mono text-primary border-primary/30">
                     Gemini 3.5 Flash Lite
                   </Badge>
                 ) : (
@@ -146,48 +148,50 @@ export function AIInterpretationCard({
                     Rule Engine
                   </Badge>
                 )}
-              </CardTitle>
+              </div>
               <CardDescription className="text-xs">
                 Real-time operational petroleum engineering interpretation of simulation values.
               </CardDescription>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 self-end md:self-auto pt-1 md:pt-0">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={fetchAssessment}
               disabled={loading}
-              className="h-7 text-xs gap-1"
+              className="h-7 text-xs px-2.5 gap-1.5 whitespace-nowrap shrink-0"
+              title="Request a fresh AI analysis from Gemini"
             >
-              <RotateCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
-              Re-Analyze
+              <RotateCw className={`w-3 h-3 shrink-0 ${loading ? "animate-spin text-primary" : ""}`} />
+              <span>{loading ? "Analyzing..." : "Re-Analyze"}</span>
             </Button>
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={handleCopy}
-              disabled={!data}
-              className="h-7 text-xs gap-1"
+              disabled={!data || loading}
+              className="h-7 text-xs px-2.5 gap-1.5 whitespace-nowrap shrink-0"
+              title="Copy engineering assessment to clipboard"
             >
-              {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-              {copied ? "Copied" : "Copy"}
+              {copied ? <Check className="w-3 h-3 text-emerald-600 shrink-0" /> : <Copy className="w-3 h-3 shrink-0" />}
+              <span>{copied ? "Copied" : "Copy"}</span>
             </Button>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4 text-xs">
+      <CardContent className="space-y-4 text-xs pt-4">
         {loading && !data ? (
           <div className="py-8 flex flex-col items-center justify-center gap-2 text-foreground/60">
             <LoadingSpinner size="md" />
             <p className="text-xs">Analyzing cake thickness and filtrate volume with Gemini AI...</p>
           </div>
         ) : data ? (
-          <>
+          <div className={`space-y-4 transition-opacity duration-200 ${loading ? "opacity-60 pointer-events-none" : "opacity-100"}`}>
             {/* Operational Health Banner */}
             <div className={`p-3 rounded-md flex items-start gap-2.5 ${flagTheme.headerBg}`}>
               <div className="mt-0.5">{flagTheme.icon}</div>
@@ -229,7 +233,7 @@ export function AIInterpretationCard({
                     Filtrate Invasion &amp; Skin Effect
                   </span>
                   <Badge variant="outline" className="font-mono text-[10px]">
-                    Q = {filtrateVolumeCc.toFixed(2)} cc
+                    Q = {filtrateVolumeCc.toFixed(2)} cc (cm³)
                   </Badge>
                 </div>
                 <p className="text-foreground/75 leading-relaxed">
@@ -266,7 +270,7 @@ export function AIInterpretationCard({
                 </ul>
               </div>
             </div>
-          </>
+          </div>
         ) : null}
       </CardContent>
     </Card>

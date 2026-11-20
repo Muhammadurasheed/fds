@@ -61,7 +61,6 @@ export function MobileNav() {
       </Link>
 
       <div className="flex items-center gap-2">
-        <HealthStatusBadge />
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}

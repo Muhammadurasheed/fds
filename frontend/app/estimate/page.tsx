@@ -242,28 +242,11 @@ export default function EstimatePage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Page Header with Engine Status Badge */}
+      {/* Page Header */}
       <PageHeader
         title="Formation Damage Estimator"
-        description="Predict mud-cake thickness (cm) and cumulative filtrate invasion volume (cc) during drilling using empirical parameter uncertainty estimates."
-        badge={
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">Calculation Engine</Badge>
-            {backendConnected === true ? (
-              <Badge variant="valid" className="gap-1 text-[11px] py-0.5">
-                <Wifi className="w-3 h-3" /> Engine Connected
-              </Badge>
-            ) : backendConnected === false ? (
-              <Badge variant="error" className="gap-1 text-[11px] py-0.5">
-                <WifiOff className="w-3 h-3" /> Engine Offline (127.0.0.1:8000)
-              </Badge>
-            ) : (
-              <Badge variant="default" className="gap-1 text-[11px] py-0.5">
-                <LoadingSpinner size="sm" /> Checking...
-              </Badge>
-            )}
-          </div>
-        }
+        description="Predict mud-cake thickness (cm) and cumulative filtrate invasion volume in cubic centimeters (cc / cm³) during drilling using empirical parameter uncertainty estimates."
+        badge={<Badge variant="outline">Calculation Engine</Badge>}
       />
 
       {/* Calibration context guidance banner */}
@@ -621,7 +604,9 @@ export default function EstimatePage() {
                         <Droplets className="w-3.5 h-3.5 text-sky-600" />
                         Cumulative Filtrate Volume (Q)
                       </span>
-                      <Badge variant="primary" className="font-mono text-xs px-2">cc</Badge>
+                      <Badge variant="primary" className="font-mono text-xs px-2" title="Cubic Centimeters (equal to mL)">
+                        cc (cm³)
+                      </Badge>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -629,10 +614,12 @@ export default function EstimatePage() {
                       <span className="text-4xl font-mono font-bold text-sky-800 tracking-tight">
                         {predictionResponse.results.filtrate_volume_cc.toFixed(2)}
                       </span>
-                      <span className="text-xs font-mono text-foreground/60">cc</span>
+                      <span className="text-xs font-mono text-foreground/60" title="Cubic Centimeters (cm³)">
+                        cc (cm³)
+                      </span>
                     </div>
                     <span className="text-[11px] text-foreground/60 block leading-tight">
-                      Cumulative fluid invasion loss into permeable core (Eq. 26).
+                      Cumulative fluid invasion loss into permeable core in cubic centimeters [cc / cm³] (Eq. 26).
                     </span>
 
                     {/* Uncertainty range summary badge if enabled */}
@@ -640,7 +627,7 @@ export default function EstimatePage() {
                       <div className="pt-2 border-t border-surface-border text-[11px] font-mono text-foreground/75 flex justify-between">
                         <span className="text-foreground/50">95% Range:</span>
                         <span>
-                          [{predictionResponse.uncertainty.filtrate_volume_cc.lower.toFixed(2)} – {predictionResponse.uncertainty.filtrate_volume_cc.upper.toFixed(2)}] cc
+                          [{predictionResponse.uncertainty.filtrate_volume_cc.lower.toFixed(2)} – {predictionResponse.uncertainty.filtrate_volume_cc.upper.toFixed(2)}] cc (cm³)
                         </span>
                       </div>
                     )}

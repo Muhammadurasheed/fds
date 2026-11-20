@@ -34,8 +34,6 @@ export function TopHeader() {
           <BookOpen className="w-3.5 h-3.5" />
           <span>Model Documentation</span>
         </Link>
-        <div className="h-4 w-px bg-surface-border" />
-        <HealthStatusBadge />
       </div>
     </header>
   );

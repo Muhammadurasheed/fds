@@ -298,24 +298,7 @@ export default function ChartsPage() {
       <PageHeader
         title="Chart Explorer"
         description="Explore how drilling exposure time, wellbore inclination and mud pressure influence predicted mud-cake thickness and cumulative filtrate invasion. Adjust the operating conditions to examine the response of the selected scientific calibration."
-        badge={
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">Parametric Sweeps</Badge>
-            {backendConnected === true ? (
-              <Badge variant="valid" className="gap-1 text-[11px] py-0.5">
-                <Wifi className="w-3 h-3" /> Engine Connected
-              </Badge>
-            ) : backendConnected === false ? (
-              <Badge variant="error" className="gap-1 text-[11px] py-0.5">
-                <WifiOff className="w-3 h-3" /> Engine Offline
-              </Badge>
-            ) : (
-              <Badge variant="default" className="gap-1 text-[11px] py-0.5">
-                <LoadingSpinner size="sm" /> Connecting...
-              </Badge>
-            )}
-          </div>
-        }
+        badge={<Badge variant="outline">Parametric Sweeps</Badge>}
         actions={
           <Button
             variant="outline"
