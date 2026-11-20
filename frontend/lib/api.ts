@@ -91,6 +91,44 @@ export interface DomainStatus {
   warnings: string[];
 }
 
+export interface DatasetColumnMetadata {
+  name: string;
+  unit: string;
+  data_type: string;
+  description: string;
+}
+
+export interface DatasetGenerateRequest {
+  time_steps: number;
+  angle_steps: number;
+  pressure_steps: number;
+  time_range_hr: [number, number];
+  angle_range_deg: [number, number];
+  pressure_range_psi: [number, number];
+  calibration: "experimental" | "model";
+  preview_rows?: number;
+}
+
+export interface DatasetRow {
+  time_hr: number;
+  deviation_angle_deg: number;
+  mud_pressure_psi: number;
+  cake_thickness_cm: number;
+  filtrate_volume_cc: number;
+  source_path_angle_deg: number;
+  off_path: boolean;
+  [key: string]: unknown;
+}
+
+export interface DatasetGenerateResponse {
+  row_count: number;
+  off_source_path_count: number;
+  calibration: string;
+  columns: DatasetColumnMetadata[];
+  preview: DatasetRow[];
+  download_url: string;
+}
+
 export interface FixedInputs {
   time_hr?: number;
   deviation_angle_deg?: number;
@@ -259,5 +297,51 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     });
+  },
+
+  generateDataset(payload: DatasetGenerateRequest): Promise<DatasetGenerateResponse> {
+    return request<DatasetGenerateResponse>("/datasets", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Export full dataset as CSV. Returns raw Response so caller can stream the blob.
+   * Uses a direct fetch to avoid the JSON parsing in the shared `request()` helper.
+   */
+  async exportDatasetCsv(payload: DatasetGenerateRequest): Promise<Response> {
+    const baseUrl = getApiBaseUrl();
+    const url = `${baseUrl}/datasets/export`;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Accept: "text/csv",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const isJson = response.headers.get("content-type")?.includes("application/json");
+        const rawData = isJson ? await response.json() : await response.text();
+        if (typeof rawData === "object" && rawData !== null && "error" in rawData) {
+          const errObj = (rawData as { error: ApiErrorDetail }).error;
+          throw new ApiClientError(
+            errObj.message || "Export failed.",
+            response.status,
+            errObj.code || "API_ERROR",
+            errObj.details
+          );
+        }
+        const fallbackMsg = typeof rawData === "string" ? rawData : response.statusText;
+        throw new ApiClientError(fallbackMsg || `Export failed with status ${response.status}`, response.status, "HTTP_ERROR");
+      }
+      return response;
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError) throw err;
+      const message = err instanceof Error ? err.message : "Failed to connect to the scientific calculation engine.";
+      throw new ApiClientError(`Network or server connection failed: ${message}`, 0, "CONNECTION_ERROR");
+    }
   },
 };
